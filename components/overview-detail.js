@@ -1,3 +1,5 @@
+import React from "react";
+import { CSSTransition } from "react-transition-group";
 import {
   Button,
   Divider,
@@ -9,6 +11,8 @@ import { Close } from "@washingtonpost/wpds-assets";
 
 const OverviewDetail = styled("div", {
   display: "flex",
+  overflow: "hidden",
+  padding: "1px",
 });
 
 const Overview = styled("div", {
@@ -18,10 +22,37 @@ const Overview = styled("div", {
 const DetailContainer = styled("div", {
   display: "flex",
   position: "relative",
+  transition: "unset",
+  "&.wprs-enter": {
+    opacity: 0,
+  },
+  "&.wprs-enter-active": {
+    opacity: 1,
+    transition: theme.transitions.allFast,
+  },
+  "&.wprs-exit": {
+    opacity: 1,
+  },
+  "&.wprs-exit-active": {
+    opacity: 0,
+    transition: theme.transitions.allFast,
+  },
   variants: {
     layout: {
       column: {
         flex: "0 0 25%",
+        "&.wprs-enter": {
+          marginInlineEnd: `-25%`,
+        },
+        "&.wprs-enter-active": {
+          marginInlineEnd: "0%",
+        },
+        "&.wprs-exit": {
+          marginInlineEnd: "0%",
+        },
+        "&.wprs-exit-active": {
+          marginInlineEnd: `-25%`,
+        },
       },
       overlay: {
         backgroundColor: theme.colors.secondary,
@@ -36,12 +67,12 @@ const DetailContainer = styled("div", {
 
 const CloseButton = styled(Button, {
   position: "absolute",
-  insetBlockStart: theme.space["050"],
-  insetInlineEnd: theme.space["050"],
+  insetBlockStart: "$050",
+  insetInlineEnd: "$050",
 });
 
 const StyledDivider = styled(Divider, {
-  marginInline: theme.space["100"],
+  marginInline: "$100",
   paddingInlineStart: "1px",
   variants: {
     layout: {
@@ -53,32 +84,51 @@ const StyledDivider = styled(Divider, {
 });
 
 const Detail = ({ children, onClose, ...props }) => {
-  if (!children) {
-    return null;
-  }
+  const [showDetail, setShowDetail] = React.useState(false);
+  const prevChild = React.useRef();
+
+  React.useEffect(() => {
+    if (children) {
+      setShowDetail(true);
+      prevChild.current = React.Children.only(React.cloneElement(children));
+    } else {
+      setShowDetail(false);
+    }
+  }, [children]);
 
   return (
-    <DetailContainer
-      {...props}
-      layout={{
-        "@initial": "column",
-        "@sm": "overlay",
+    <CSSTransition
+      in={showDetail}
+      classNames="wprs"
+      timeout={{
+        enter: 200,
+        exit: 200,
       }}
+      mountOnEnter
+      unmountOnExit
     >
-      <CloseButton variant="primary" icon="center" onClick={() => onClose()}>
-        <Icon label="Close">
-          <Close />
-        </Icon>
-      </CloseButton>
-      <StyledDivider
-        orientation="vertical"
-        decorative
+      <DetailContainer
+        {...props}
         layout={{
-          "@sm": "hidden",
+          "@notSm": "column",
+          "@sm": "overlay",
         }}
-      />
-      {children}
-    </DetailContainer>
+      >
+        <CloseButton variant="primary" icon="center" onClick={() => onClose()}>
+          <Icon label="Close">
+            <Close />
+          </Icon>
+        </CloseButton>
+        <StyledDivider
+          orientation="vertical"
+          decorative
+          layout={{
+            "@sm": "hidden",
+          }}
+        />
+        {children || prevChild.current}
+      </DetailContainer>
+    </CSSTransition>
   );
 };
 
