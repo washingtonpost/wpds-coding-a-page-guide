@@ -1,5 +1,13 @@
 import React from "react";
-import { Button, Container, styled, theme } from "@washingtonpost/wpds-ui-kit";
+import useSWR from "swr";
+import {
+  Button,
+  Container,
+  InputText,
+  styled,
+  theme,
+} from "@washingtonpost/wpds-ui-kit";
+import { useDebounce } from "../hooks/use-debounce";
 
 const StyledContainer = styled(Container, {
   alignItems: "unset",
@@ -77,21 +85,45 @@ const CloseButton = styled(Button, {
   insetInlineEnd: theme.space["050"],
 });
 
+const fetcher = (...args) => fetch(...args).then((res) => res.json());
+
 export default function Home() {
-  const [recipes] = React.useState(new Array(24).fill(""));
+  const [searchText, setSearchText] = React.useState("");
+  const debouncedSearchText = useDebounce(searchText, 275);
+
+  const { data: recipes = [] } = useSWR(
+    () => `/api/recipes?search=${debouncedSearchText}`,
+    fetcher
+  );
+
   const [selectedRecipe, setSelectedRecipe] = React.useState();
+
+  function handleSearchChange(event) {
+    setSearchText(event.target.value);
+  }
 
   function handleCloseClick() {
     setSelectedRecipe(undefined);
   }
 
   function handleRecipeClick(id) {
-    setSelectedRecipe(id);
+    const selected = recipes.find((recipe) => recipe.id === id);
+    setSelectedRecipe(selected);
   }
 
   return (
     <StyledContainer>
-      <Header>Header</Header>
+      <Header>
+        Recipe Search{" "}
+        <InputText
+          type="search"
+          label="Search"
+          name="search-input"
+          id="search-input"
+          value={searchText}
+          onChange={handleSearchChange}
+        />
+      </Header>
       <OverviewDetail>
         <Overview>
           Overview
@@ -103,10 +135,10 @@ export default function Home() {
           >
             {recipes.map((recipe, index) => (
               <ResponsiveGridItem
-                key={index}
-                onClick={() => handleRecipeClick(index)}
+                key={recipe.title}
+                onClick={() => handleRecipeClick(recipe.id)}
               >
-                {index}
+                {recipe.title}
               </ResponsiveGridItem>
             ))}
           </ResponsiveGrid>
@@ -120,7 +152,7 @@ export default function Home() {
           >
             Detail
             <br />
-            {selectedRecipe}
+            {selectedRecipe.title}
             <CloseButton onClick={handleCloseClick}>Close</CloseButton>
           </Detail>
         )}
