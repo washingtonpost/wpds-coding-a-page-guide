@@ -47,12 +47,49 @@ const Detail = styled("div", {
   },
 });
 
+const ResponsiveGrid = styled("ul", {
+  display: "grid",
+  gap: theme.space["050"],
+  listStyle: "none",
+  marginBlock: theme.space["050"],
+  paddingInlineStart: "0",
+  variants: {
+    layout: {
+      twoColumn: {
+        gridTemplateColumns: "repeat(2, minmax(50px, 1fr))",
+      },
+      fourColumn: {
+        gridTemplateColumns: "repeat(4, minmax(50px, 1fr))",
+      },
+    },
+  },
+});
+
+const ResponsiveGridItem = styled("li", {
+  backgroundColor: theme.colors["blue300"],
+  padding: theme.space["050"],
+});
+
 export default function Home() {
+  const [recipes] = React.useState(new Array(24).fill(""));
+
   return (
     <StyledContainer>
       <Header>Header</Header>
       <OverviewDetail>
-        <Overview>Overview</Overview>
+        <Overview>
+          Overview
+          <ResponsiveGrid
+            layout={{
+              "@initial": "fourColumn",
+              "@sm": "twoColumn",
+            }}
+          >
+            {recipes.map((recipe, index) => (
+              <ResponsiveGridItem key={index}>{index}</ResponsiveGridItem>
+            ))}
+          </ResponsiveGrid>
+        </Overview>
         <Detail
           layout={{
             "@initial": "column",
