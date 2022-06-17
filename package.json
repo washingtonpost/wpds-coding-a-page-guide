@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@stitches/react": "^1.2.8",
     "@washingtonpost/wpds-ui-kit": "^0.9.1",
     "jsonpath": "^1.1.1",
     "next": "^10.2.3",
