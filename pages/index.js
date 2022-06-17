@@ -30,8 +30,21 @@ const Overview = styled("div", {
 
 const Detail = styled("div", {
   backgroundColor: theme.colors["blue400"],
-  flex: "0 25%",
   padding: theme.space["050"],
+  variants: {
+    layout: {
+      column: {
+        flex: "0 0 25%",
+      },
+      overlay: {
+        inset: 0,
+        overflow: "auto",
+        opacity: 0.75,
+        position: "fixed",
+        zIndex: theme.zIndices.offer,
+      },
+    },
+  },
 });
 
 export default function Home() {
@@ -40,7 +53,14 @@ export default function Home() {
       <Header>Header</Header>
       <OverviewDetail>
         <Overview>Overview</Overview>
-        <Detail>Detail</Detail>
+        <Detail
+          layout={{
+            "@initial": "column",
+            "@sm": "overlay",
+          }}
+        >
+          Detail
+        </Detail>
       </OverviewDetail>
     </StyledContainer>
   );
