@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, styled, theme } from "@washingtonpost/wpds-ui-kit";
+import { Button, Container, styled, theme } from "@washingtonpost/wpds-ui-kit";
 
 const StyledContainer = styled(Container, {
   alignItems: "unset",
@@ -31,6 +31,7 @@ const Overview = styled("div", {
 const Detail = styled("div", {
   backgroundColor: theme.colors["blue400"],
   padding: theme.space["050"],
+  position: "relative",
   variants: {
     layout: {
       column: {
@@ -70,8 +71,23 @@ const ResponsiveGridItem = styled("li", {
   padding: theme.space["050"],
 });
 
+const CloseButton = styled(Button, {
+  position: "absolute",
+  insetBlockStart: theme.space["050"],
+  insetInlineEnd: theme.space["050"],
+});
+
 export default function Home() {
   const [recipes] = React.useState(new Array(24).fill(""));
+  const [selectedRecipe, setSelectedRecipe] = React.useState();
+
+  function handleCloseClick() {
+    setSelectedRecipe(undefined);
+  }
+
+  function handleRecipeClick(id) {
+    setSelectedRecipe(id);
+  }
 
   return (
     <StyledContainer>
@@ -86,18 +102,28 @@ export default function Home() {
             }}
           >
             {recipes.map((recipe, index) => (
-              <ResponsiveGridItem key={index}>{index}</ResponsiveGridItem>
+              <ResponsiveGridItem
+                key={index}
+                onClick={() => handleRecipeClick(index)}
+              >
+                {index}
+              </ResponsiveGridItem>
             ))}
           </ResponsiveGrid>
         </Overview>
-        <Detail
-          layout={{
-            "@initial": "column",
-            "@sm": "overlay",
-          }}
-        >
-          Detail
-        </Detail>
+        {selectedRecipe !== undefined && (
+          <Detail
+            layout={{
+              "@initial": "column",
+              "@sm": "overlay",
+            }}
+          >
+            Detail
+            <br />
+            {selectedRecipe}
+            <CloseButton onClick={handleCloseClick}>Close</CloseButton>
+          </Detail>
+        )}
       </OverviewDetail>
     </StyledContainer>
   );
